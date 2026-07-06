@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OLX Smart Helper — помощь и настройки</title>
+  <style>
+    :root {
+      --bg: #14161c; --bg2: #1c1f28; --border: #2b2f3a;
+      --text: #eef1f7; --dim: #9aa2b1; --green: #1fbf75;
+      --orange: #f5a524; --red: #f0455f;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 14px; line-height: 1.55;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
+    header.top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .logo { width: 34px; height: 34px; border-radius: 9px; background: var(--bg2);
+      border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+    .logo span { width: 14px; height: 14px; border-radius: 50%; background: var(--green); }
+    h1 { font-size: 20px; margin: 0; }
+    .sub { color: var(--dim); font-size: 13px; margin: 0 0 22px; }
+    section {
+      background: linear-gradient(180deg, var(--bg2), var(--bg));
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px 20px; margin-bottom: 16px;
+    }
+    h2 { font-size: 15px; margin: 0 0 10px; }
+    h3 { font-size: 13px; margin: 16px 0 6px; color: var(--dim); text-transform: uppercase; letter-spacing: .4px; }
+    p, li { color: #d6dae3; }
+    ul { padding-left: 18px; margin: 6px 0; }
+    code { background: rgba(255,255,255,.06); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+    /* watchlist */
+    .wl-item { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid var(--border); }
+    .wl-item:first-child { border-top: none; }
+    .wl-main { flex: 1 1 auto; min-width: 0; }
+    .wl-title { font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+    .wl-title a { color: var(--text); text-decoration: none; }
+    .wl-title a:hover { color: var(--green); }
+    .wl-meta { font-size: 12px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 10px; }
+    .wl-note { font-size: 12px; color: #c6cbd4; margin-top: 4px; font-style: italic; }
+    .wl-remove {
+      background: transparent; border: 1px solid var(--border); color: var(--dim);
+      border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 12px; flex: 0 0 auto;
+    }
+    .wl-remove:hover { color: var(--red); border-color: var(--red); }
+    .empty { color: var(--dim); font-size: 13px; padding: 8px 0; }
+    /* presets */
+    .pre-item { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
+    .pre-item:first-child { border-top: none; }
+    .pre-main { flex: 1 1 auto; min-width: 0; }
+    .pre-label { font-weight: 700; font-size: 13px; }
+    .pre-label .star { color: var(--green); margin-left: 6px; }
+    .pre-text { font-size: 12px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pre-del { background: transparent; border: none; color: var(--dim); cursor: pointer; font-size: 14px; }
+    .pre-del:hover { color: var(--red); }
+    .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    input, textarea {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--font); font-size: 13px; padding: 8px 10px;
+    }
+    input.grow { flex: 1 1 160px; }
+    textarea { width: 100%; min-height: 54px; resize: vertical; margin-top: 8px; }
+    button.primary {
+      background: var(--green); border: 1px solid var(--green); color: #05231a;
+      border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer;
+    }
+    button.ghost {
+      background: transparent; border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer;
+    }
+    button.ghost:hover { border-color: #3a3f4c; }
+    button.danger {
+      background: transparent; border: 1px solid rgba(240,69,95,.5); color: var(--red);
+      border-radius: 8px; padding: 8px 14px; font-weight: 600; cursor: pointer;
+    }
+    button.danger:hover { background: rgba(240,69,95,.12); border-color: var(--red); }
+    button.small { padding: 5px 10px; font-size: 12px; }
+    .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; }
+    .toggle input { width: 16px; height: 16px; accent-color: var(--green); }
+    .b-ok { color: var(--green); }
+    .b-err { color: var(--red); }
+    .hint { font-size: 12px; color: var(--dim); margin: 8px 0 0; }
+    .dbg-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .dbg-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    #dbg-list { margin-top: 8px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    #dbg-list:empty { display: none; }
+    .dbg-item { display: flex; gap: 10px; align-items: baseline; padding: 7px 11px; border-top: 1px solid var(--border); font-size: 12px; }
+    .dbg-item:first-child { border-top: none; }
+    .dbg-time { color: var(--dim); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .dbg-type { font-weight: 700; flex: 0 0 auto; }
+    .dbg-type.warn { color: var(--orange); }
+    .dbg-payload { color: #c6cbd4; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11.5px; }
+    @media (max-width: 480px) { .wrap { padding: 18px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="logo"><span></span></div>
+      <div>
+        <h1>OLX Smart Helper</h1>
+      </div>
+    </header>
+    <p class="sub">Версия <b id="app-version">—</b></p>
+
+    <section>
+      <h2>Шаблоны сообщений</h2>
+      <div id="presets"></div>
+      <div class="row">
+        <input id="p-label" class="grow" type="text" placeholder="Название" />
+        <input id="p-text" class="grow" type="text" placeholder="Текст сообщения" />
+        <button id="p-add" class="primary">Добавить</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Сохранённое</h2>
+      <div id="watchlist"><div class="empty">Загрузка…</div></div>
+      <div class="row">
+        <button id="wl-csv" class="ghost small">Экспорт в CSV</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Резервная копия</h2>
+      <div class="row">
+        <button id="b-export" class="primary">Экспорт (JSON)</button>
+        <button id="b-import" class="ghost">Импорт</button>
+        <button id="b-import-replace" class="danger">Заменить всё</button>
+        <input id="b-file" type="file" accept="application/json,.json" hidden />
+      </div>
+      <p class="hint">«Заменить всё» перезапишет все данные — необратимо.</p>
+      <div id="b-status" class="empty" style="margin-top:10px"></div>
+    </section>
+
+    <section>
+      <h2>Отладка</h2>
+      <label class="toggle">
+        <input id="dbg" type="checkbox" />
+        <span>Собирать диагностику извлечения</span>
+      </label>
+      <div class="dbg-head">
+        <h3>События</h3>
+        <div class="dbg-actions">
+          <button id="dbg-copy" class="ghost small">Скопировать</button>
+          <button id="dbg-refresh" class="ghost small">Обновить</button>
+          <button id="dbg-clear" class="ghost small">Очистить</button>
+        </div>
+      </div>
+      <div id="dbg-list"><div class="empty">Нет событий.</div></div>
+    </section>
+  </div>
+
+  <script src="../core/store.js"></script>
+  <script src="../core/presets.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
